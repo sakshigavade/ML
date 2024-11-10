@@ -1,0 +1,242 @@
+LA1
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score, mean_squared_error
+
+
+data = pd.read_csv("Uber.csv") 
+data
+
+data["pickup_datetime"] = pd.to_datetime(data["pickup_datetime"])
+
+missing_values = data.isnull().sum()
+print("Missing values in the dataset:")
+print(missing_values)
+
+data.dropna(inplace=True)
+
+missing_values = data.isnull().sum()
+print("Missing values after handling:")
+print(missing_values)
+
+sns.boxplot(x=data["fare_amount"])
+plt.show()
+Q1 = data["fare_amount"].quantile(0.25)
+Q3 = data["fare_amount"].quantile(0.75)
+IQR = Q3 - Q1
+
+threshold = 1.5
+lower_bound = Q1 - threshold * IQR
+upper_bound = Q3 + threshold * IQR
+
+data_no_outliers = data[(data["fare_amount"] >= lower_bound) & (data["fare_amount"] <= upper_bound)]
+sns.boxplot(x=data_no_outliers["fare_amount"])
+plt.show()
+data.plot(kind="box",subplots=True, layout=(7, 2), figsize=(15, 20))
+data_numeric = data.select_dtypes(include=[np.number]) 
+correlation_matrix = data.corr()
+sns.heatmap(correlation_matrix, annot=True)
+plt.Show()
+X = data[['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'passenger_count']]
+y = data['fare_amount'] 
+Y
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train)
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+y_pred_lr = lr_model.predict(X_test)
+y_pred_lr
+print("Linear Model:",y_pred_lr)
+y_pred_rf = rf_model.predict(X_test)
+print("Random Forest Model:", y_pred_rf)
+r2_lr = r2_score(y_test, y_pred_lr)
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
+print("Linear Regression - R2:", r2_lr)
+print("Linear Regression - RMSE:", rmse_lr)
+
+r2_rf = r2_score(y_test, y_pred_rf)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+
+print("Random Forest Regression R2:", r2_rf)
+print("Random Forest Regression RMSE:",rmse_rf)
+
+
+LA2
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, confusion_matrix, accuracy_score
+import numpy as np
+
+df = pd.read_csv("emails.csv")  
+df
+
+X = df.drop(columns=['Email No.', 'Prediction'])  
+y = df['Prediction']  
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+
+k = int(input("Enter the value of k for K-Nearest Neighbors: "))
+
+
+knn = KNeighborsClassifier(n_neighbors=k)
+
+
+knn.fit(X_train, y_train)
+
+
+y_pred_knn = knn.predict(X_test)
+
+
+print("\nKNN Model Performance:")
+print("KNN Accuracy:", accuracy_score(y_test, y_pred_knn))
+print("KNN R²:", r2_score(y_test, y_pred_knn))
+print("KNN MSE:", mean_squared_error(y_test, y_pred_knn))
+print("KNN RMSE:", np.sqrt(mean_squared_error(y_test, y_pred_knn)))
+print("KNN MAE:", mean_absolute_error(y_test, y_pred_knn))
+print("KNN Confusion Matrix:\n", confusion_matrix(y_test, y_pred_knn))
+
+
+
+
+
+svm = SVC(kernel='linear')
+
+
+svm.fit(X_train, y_train)
+
+
+y_pred_svm = svm.predict(X_test)
+
+
+print("\nSVM Model Performance:")
+print("SVM Accuracy:", accuracy_score(y_test, y_pred_svm))
+print("SVM R²:", r2_score(y_test, y_pred_svm))
+print("SVM MSE:", mean_squared_error(y_test, y_pred_svm))
+print("SVM RMSE:", np.sqrt(mean_squared_error(y_test, y_pred_svm)))
+print("SVM MAE:", mean_absolute_error(y_test, y_pred_svm))
+print("SVM Confusion Matrix:\n", confusion_matrix(y_test, y_pred_svm))
+
+
+LA3
+import pandas as pd
+data=pd.read_csv('Churn_Modelling.csv')
+from sklearn.model_selection import train_test_split
+X = data.drop(['RowNumber','CustomerId','Surname','Exited'],axis=1)
+y=data['Exited']
+X=pd.get_dummies(X, drop_first=True)
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+from sklearn.preprocessing import StandardScaler
+
+scaler=StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+
+X_test_scaled=scaler.transform(X_test)
+pip install tensorflow
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+model= Sequential()
+model.add(Dense(16,input_dim=X_train_scaled.shape[1],activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train_scaled, y_train, epochs=20, batch_size=32, validation_split=0.2)
+from sklearn.metrics import confusion_matrix, accuracy_score
+
+
+y_pred = model.predict(X_test_scaled)
+y_pred = (y_pred > 0.5)
+
+accuracy = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+
+print(f'Accuracy: {accuracy}')
+print(f'Confusion Matrix:\n{cm}')
+model = Sequential()
+model.add(Dense(16, input_dim=X_train_scaled.shape[1], activation='tanh'))  
+model.add(Dense(8, activation='sigmoid'))  
+model.add(Dense(1, activation='sigmoid'))
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train_scaled, y_train, epochs=20, batch_size=32, validation_split=0.2)
+
+LA4
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+data = pd.read_csv('diabetes.csv.csv')
+print(data.isnull().sum())
+X = data.drop('Outcome', axis=1)  
+y = data['Outcome']  
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+k = int(input("Enter the value of k for K-Nearest Neighbors: "))
+knn = KNeighborsClassifier(n_neighbors=k)
+
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+accuracy = accuracy_score(y_test, y_pred)
+error_rate = 1 - accuracy
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+print(f"Confusion Matrix:\n{conf_matrix}")
+print(f"Accuracy: {accuracy * 100:.2f}%")
+print(f"Error Rate: {error_rate * 100:.2f}%")
+print(f"Precision: {precision * 100:.2f}%")
+print(f"Recall: {recall * 100:.2f}%")
+
+LA5
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans 
+import matplotlib.pyplot as plt 
+from sklearn.preprocessing import StandardScaler
+data=pd.read_csv('sales_data_sample.csv.csv',encoding='ISO-8859-1')
+data
+features = ['QUANTITYORDERED', 'PRICEEACH', 'SALES', 'MSRP']
+X = data[features].dropna()
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+WCSS = []
+K_range = range(1, 11) 
+for k in K_range:
+    kmeans = KMeans(n_clusters=k, random_state=42)   
+    kmeans.fit(X_scaled)
+    WCSS.append(kmeans.inertia_)  # Inertia is the WCSS value
+plt.figure(figsize=(8,6)) 
+plt.plot(K_range, WCSS, 'bo-', marker='o') 
+plt.title('Elbow Method for Optimal K') 
+plt.xlabel('Number of clusters (K)') 
+plt.ylabel('Within-Cluster Sum of Squares (WCSS)')
+plt.xticks(K_range)
+optimal_k = 3  
+kmeans_final = KMeans(n_clusters=optimal_k, random_state=42)
+kmeans_final.fit(X_scaled)
+data['Cluster'] = kmeans_final.labels_
+columns_to_display = ['QUANTITYORDERED', 'PRICEEACH', 'SALES', 'MSRP', 'Cluster']
+print(data[columns_to_display].head(30))
+print(data['Cluster'].value_counts())
